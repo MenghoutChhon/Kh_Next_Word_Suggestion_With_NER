@@ -1,0 +1,44 @@
+{
+  "reportId": "15310cee-e777-4195-aa34-c1bbef0c53e2",
+  "reportType": "scan_summary",
+  "generatedAt": "2026-01-14T09:00:25.493Z",
+  "data": {
+    "totalScans": 1,
+    "threatsDetected": 0,
+    "cleanScans": 1,
+    "criticalThreats": 0,
+    "highThreats": 0,
+    "mediumThreats": 0,
+    "lowThreats": 0,
+    "scans": [
+      {
+        "id": "d2ec6797-1612-4578-a01e-9402a7621184",
+        "user_id": "56b4438b-16b2-4933-9f14-4cf36baaa7f6",
+        "target": "https://example.com",
+        "scan_type": "url",
+        "url": "https://example.com",
+        "file_name": null,
+        "file_size": null,
+        "file_hash": null,
+        "status": "completed",
+        "threat_level": "clean",
+        "confidence_score": 1,
+        "ml_model_used": null,
+        "scan_duration": null,
+        "completed_at": "2026-01-14T09:00:25.314Z",
+        "created_at": "2026-01-14T09:00:25.306Z",
+        "updated_at": "2026-01-14T09:00:25.306Z"
+      }
+    ],
+    "user": {
+      "id": "56b4438b-16b2-4933-9f14-4cf36baaa7f6",
+      "email": "biz+1768381223@example.com",
+      "full_name": "Biz User",
+      "tier": "business"
+    },
+    "dateRange": {
+      "start": "2025-12-15T09:00:25.491Z",
+      "end": "2026-01-14T09:00:25.491Z"
+    }
+  }
+}

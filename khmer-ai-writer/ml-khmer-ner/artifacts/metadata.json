@@ -1,0 +1,6 @@
+{
+  "language": "khmer",
+  "task": "named_entity_recognition",
+  "vocab_size": 225676,
+  "num_labels": 5
+}

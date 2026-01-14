@@ -1,0 +1,7 @@
+{
+  "model_type": "NER",
+  "architecture": "BiLSTM",
+  "embedding_dim": 64,
+  "hidden_dim": 128,
+  "num_labels": 5
+}

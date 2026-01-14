@@ -1,0 +1,283 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password_hash String
+  full_name     String?
+  role          String         @default("user")
+  tier          String         @default("free") // free, premium, business
+  current_team_id String?
+  scans_limit   Int            @default(10)
+  scans_used    Int            @default(0)
+  api_calls_limit Int          @default(100)
+  api_calls_used Int           @default(0)
+  storage_limit BigInt         @default(1073741824)
+  storage_used  BigInt         @default(0)
+  reports_generated Int        @default(0)
+  usage_reset_at DateTime      @default(now())
+  two_factor_enabled Boolean   @default(false)
+  two_factor_secret String?
+  mfa_backup_codes String?
+  privacy_settings Json?
+  notification_settings Json?
+  subscription_status String?
+  subscription_end_date DateTime?
+  tier_updated_at DateTime?
+  organization_id String?
+  
+  // Relations
+  scans         Scan[]
+  reports       Report[]
+  billing       Billing[]
+  paymentHistory PaymentHistory[]
+  apiKeys       ApiKey[]
+  organization  Organization?  @relation(fields: [organization_id], references: [id])
+  ownedOrgs     Organization[] @relation("OrganizationOwner")
+  teamMembers   TeamMember[]
+  otpVerifications OtpVerification[]
+  documents     Document[]
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  @@index([email])
+  @@index([tier])
+}
+
+model Organization {
+  id                String       @id @default(uuid())
+  name              String
+  owner_id          String
+  subscription_tier String       @default("free") // free, premium, business
+  status            String       @default("active")
+  
+  // Relations
+  owner             User         @relation("OrganizationOwner", fields: [owner_id], references: [id])
+  members           User[]
+  teamMembers       TeamMember[]
+  
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  
+  @@index([owner_id])
+}
+
+
+
+model Scan {
+  id               String       @id @default(uuid())
+  user             User         @relation(fields: [userId], references: [id])
+  userId           String
+  target           String?
+  scanType         String       @default("file") // file, url, image
+  url              String?
+  file_name        String?
+  file_size        Int?
+  file_hash        String?
+  status           String       @default("queued") // queued, processing, completed, failed
+  threat_level     String?      // low, medium, high, critical
+  confidence_score Float?
+  ml_model_used    String?      // which ML model was used
+  scan_duration    Int?         // milliseconds
+  completed_at     DateTime?
+  
+  // Relations
+  scan_results     ScanResult[]
+  report           Report?
+  
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([threat_level])
+  @@index([createdAt])
+}
+
+model ScanResult {
+  id             String   @id @default(uuid())
+  scan           Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  scanId         String
+  engine         String   // ML model or detection engine name
+  detectionName  String
+  threatType     String
+  severity       String
+  details        String   @db.Text
+  confidence     Float?
+  
+  createdAt      DateTime @default(now())
+  
+  @@index([scanId])
+}
+
+model Report {
+  id         String   @id @default(uuid())
+  scan       Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  scanId     String   @unique
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  data       String   @db.Text
+  format     String   @default("json") // json, pdf, html
+  
+  createdAt  DateTime @default(now())
+  
+  @@index([userId])
+}
+
+model WebhookEvent {
+  id        String   @id @default(uuid())
+  provider  String
+  payload   String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+model Billing {
+  id              String   @id @default(uuid())
+  user            User     @relation(fields: [userId], references: [id])
+  userId          String
+  amount          Float
+  currency        String   @default("USD")
+  status          String   @default("pending") // pending, completed, failed, refunded
+  payment_method  String?  // visa, bank_transfer
+  card_number     String?  // masked: **** **** **** 3902
+  transaction_id  String?  @unique
+  description     String?
+  tier_upgrade    String?  // the tier being purchased
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+}
+
+model PaymentHistory {
+  id              String   @id @default(uuid())
+  user            User     @relation(fields: [userId], references: [id])
+  userId          String
+  subscription_id String?
+  amount          Float    @default(0)
+  currency        String   @default("USD")
+  status          String   @default("pending")
+  payment_method  String?
+  transaction_id  String?  @unique
+  description     String?
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Subscription {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  plan            String   // free, premium, business
+  status          String   @default("active") // active, canceled, expired
+  current_period_start DateTime @default(now())
+  current_period_end   DateTime?
+  amount          Float?  @default(0)
+  currency        String  @default("USD")
+  billing_cycle   String  @default("monthly")
+  auto_renew      Boolean @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+}
+
+model ApiKey {
+  id              String   @id @default(uuid())
+  user            User     @relation(fields: [userId], references: [id])
+  userId          String
+  key             String   @unique
+  name            String
+  tier_required   String   @default("premium") // premium, business
+  rate_limit      Int      @default(100) // requests per hour
+  is_active       Boolean  @default(true)
+  last_used_at    DateTime?
+  usage_count     Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime?
+  
+  @@index([userId])
+  @@index([key])
+  @@index([is_active])
+}
+
+model TeamMember {
+  id              String       @id @default(uuid())
+  organization    Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  organization_id String
+  user            User         @relation(fields: [userId], references: [id])
+  userId          String
+  role            String       @default("member") // owner, admin, member
+  status          String       @default("pending") // pending, active, inactive
+  invited_by      String?
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  @@unique([organization_id, userId])
+  @@index([organization_id])
+  @@index([userId])
+}
+
+model OtpVerification {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  otp_code   String
+  expires_at DateTime
+  verified   Boolean  @default(false)
+  purpose    String   @default("signup") // signup, login, reset_password
+  
+  createdAt  DateTime @default(now())
+  
+  @@index([userId])
+  @@index([otp_code])
+}
+
+model Document {
+  id              String   @id @default(uuid())
+  user            User     @relation(fields: [userId], references: [id])
+  userId          String
+  name            String
+  file_path       String
+  file_size       Int
+  mime_type       String
+  version         Int      @default(1)
+  status          String   @default("active") // active, archived, deleted
+  access_level    String   @default("private") // private, team, public
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+}
+
+model AuditLog {
+  id              String   @id @default(uuid())
+  userId          String?
+  action          String   // login, scan, upgrade, invite_member, etc.
+  resource_type   String?  // user, scan, organization
+  resource_id     String?
+  details         String?  @db.Text
+  ip_address      String?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}

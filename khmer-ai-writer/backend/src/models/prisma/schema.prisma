@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  password_hash String
+  full_name  String?
+  role       String   @default("user")
+  org        Organization? @relation(fields: [orgId], references: [id])
+  orgId      String?
+  team_members TeamMember[]
+  api_keys   ApiKey[]
+  teams      Team[]
+  scans      Scan[]
+  reports    Report[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Organization {
+  id        String  @id @default(uuid())
+  name      String
+  owner_id  String
+  subscription_tier String @default("free")
+  status    String @default("active")
+  users     User[]
+  teams     Team[]
+  team_members TeamMember[]
+  subscriptions Subscription[]
+  api_keys  ApiKey[]
+  audit_logs AuditLog[]
+  webhooks  Webhook[]
+  scans     Scan[]
+  createdAt DateTime @default(now())
+}
+
+model Team {
+  id            String   @id @default(uuid())
+  name          String
+  organization  Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  members       User[]
+  createdAt     DateTime @default(now())
+}
+
+model TeamMember {
+  id String @id @default(uuid())
+  organization Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  user User @relation(fields: [user_id], references: [id])
+  user_id String
+  role String @default("member")
+  status String @default("active")
+  daily_scan_limit Int?
+  monthly_scan_limit Int?
+  scans_used_today Int @default(0)
+  scans_used_month Int @default(0)
+  createdAt DateTime @default(now())
+  @@unique([user_id, organizationId])
+}
+
+model Subscription {
+  id String @id @default(uuid())
+  organization Organization @relation(fields: [organizationId], references: [id])
+  organizationId String @unique
+  plan_type String
+  seats Int @default(1)
+  status String @default("active")
+  current_period_start DateTime
+  current_period_end DateTime
+  createdAt DateTime @default(now())
+}
+
+model ApiKey {
+  id        String  @id @default(uuid())
+  key_hash  String  @unique
+  key_prefix String
+  name      String?
+  organization Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  created_by String
+  scopes    String[] @default(["scan:file", "scan:url"])
+  rate_limit_per_hour Int @default(100)
+  requests_used_hour Int @default(0)
+  last_used_at DateTime?
+  expires_at DateTime?
+  status    String @default("active")
+  createdAt DateTime @default(now())
+}
+
+model Scan {
+  id        String  @id @default(uuid())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?
+  target    String?
+  scanType  String   @default("file")
+  url       String?
+  file_name String?
+  file_size Int?
+  file_hash String?
+  s3_key    String?
+  status    String  @default("queued")
+  threat_level String?
+  confidence_score Float?
+  completed_at DateTime?
+  scan_results ScanResult[]
+  report    Report?
+  createdAt DateTime @default(now())
+}
+
+model ScanResult {
+  id String @id @default(uuid())
+  scan Scan @relation(fields: [scanId], references: [id])
+  scanId String
+  engine String
+  detectionName String
+  threatType String
+  severity String
+  details Json
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id        String  @id @default(uuid())
+  scan      Scan    @relation(fields: [scanId], references: [id])
+  scanId    String  @unique
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
+  data      Json
+  createdAt DateTime @default(now())
+}
+
+model WebhookEvent {
+  id        String  @id @default(uuid())
+  provider  String
+  payload   Json
+  createdAt DateTime @default(now())
+}
+
+model Billing {
+  id        String  @id @default(uuid())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
+  amount    Float
+  currency  String @default("USD")
+  status    String @default("pending")
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+  organization Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  user_id String
+  action String
+  resource_type String
+  resource_id String?
+  metadata Json?
+  createdAt DateTime @default(now())
+}
+
+model Webhook {
+  id String @id @default(uuid())
+  organization Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  url String
+  events String[]
+  secret String
+  status String @default("active")
+  failure_count Int @default(0)
+  last_triggered_at DateTime?
+  createdAt DateTime @default(now())
+}

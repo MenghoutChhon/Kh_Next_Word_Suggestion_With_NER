@@ -1,0 +1,18 @@
+**/node_modules/
+**/dist/
+**/coverage/
+**/.next/
+**/.turbo/
+**/.cache/
+**/.venv/
+**/venv/
+**/__pycache__/
+*.pyc
+*.log
+.DS_Store
+Dataset/
+
+# Local env files (keep examples)
+**/.env
+**/.env.*
+!**/.env.example

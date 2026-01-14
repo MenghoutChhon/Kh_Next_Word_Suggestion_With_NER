@@ -1,0 +1,56 @@
+model ApiKey {
+  id String @id @default(uuid())
+  organization Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  key_prefix String
+  key_hash String @unique
+  name String?
+  scopes String[] @default(["lm:suggest", "ner:extract"])
+  rate_limit_per_hour Int @default(100)
+  requests_used_hour Int @default(0)
+  last_used_at DateTime?
+  expires_at DateTime?
+  status String @default("active")
+  created_by String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Webhook {
+  id String @id @default(uuid())
+  organization Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  url String
+  secret String
+  events String[]
+  status String @default("active")
+  failure_count Int @default(0)
+  last_triggered_at DateTime?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+  organization Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  user_id String
+  action String
+  resource_type String
+  resource_id String
+  metadata Json?
+  created_at DateTime @default(now())
+}
+
+model Subscription {
+  id String @id @default(uuid())
+  organization Organization @relation(fields: [organizationId], references: [id])
+  organizationId String @unique
+  plan_type String
+  seats Int
+  status String @default("active")
+  current_period_start DateTime
+  current_period_end DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}

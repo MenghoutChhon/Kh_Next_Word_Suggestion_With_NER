@@ -1,0 +1,58 @@
+{
+  "name": "khmer-ai-writer-backend",
+  "version": "1.0.0",
+  "description": "Khmer AI Writer backend API",
+  "main": "dist/app.js",
+  "scripts": {
+    "dev": "nodemon src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "test": "jest",
+    "test:email": "ts-node src/tests/test-email.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.1",
+    "@sendgrid/mail": "^8.1.6",
+    "axios": "^1.6.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.2",
+    "pdfkit": "^0.15.0",
+    "pg": "^8.11.3",
+    "stripe": "^17.3.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/morgan": "^1.9.9",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^20.10.4",
+    "@types/pdfkit": "^0.13.4",
+    "@types/pg": "^8.10.9",
+    "@types/supertest": "^6.0.3",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "prisma": "^6.19.1",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.3"
+  },
+  "overrides": {
+    "fast-csv": "^5.0.5",
+    "@fast-csv/format": "^5.0.5",
+    "@fast-csv/parse": "^5.0.5",
+    "unzipper": "^0.12.3"
+  }
+}

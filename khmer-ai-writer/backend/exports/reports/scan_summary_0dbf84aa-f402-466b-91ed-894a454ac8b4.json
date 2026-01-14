@@ -1,0 +1,25 @@
+{
+  "reportId": "0dbf84aa-f402-466b-91ed-894a454ac8b4",
+  "reportType": "scan_summary",
+  "generatedAt": "2026-01-14T09:01:30.849Z",
+  "data": {
+    "totalScans": 0,
+    "threatsDetected": 0,
+    "cleanScans": 0,
+    "criticalThreats": 0,
+    "highThreats": 0,
+    "mediumThreats": 0,
+    "lowThreats": 0,
+    "scans": [],
+    "user": {
+      "id": "e30291b2-541d-436c-a7a0-47eaecfccaec",
+      "email": "report+1768381289@example.com",
+      "full_name": "Report User",
+      "tier": "premium"
+    },
+    "dateRange": {
+      "start": "2025-12-15T09:01:30.845Z",
+      "end": "2026-01-14T09:01:30.845Z"
+    }
+  }
+}

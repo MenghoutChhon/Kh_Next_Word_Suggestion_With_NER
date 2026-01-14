@@ -1,0 +1,9 @@
+{
+  "vocab_size": 32000,
+  "emb_dim": 384,
+  "hid_dim": 768,
+  "n_layers": 2,
+  "dropout": 0.2,
+  "pad_id": 0,
+  "seq_len": 256
+}
