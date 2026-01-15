@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, Mail, Lock, User, Eye, EyeOff, Sparkles, Zap, Globe, CheckCircle, ArrowRight, X } from 'lucide-react';
+import { Shield, Mail, Lock, User, Eye, EyeOff, Sparkles, ArrowRight, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { apiClient } from '../../lib/api';
 import { AngkorWatLogo } from '../AngkorWatLogo';
@@ -17,7 +17,6 @@ export function ModernLogin({ onLogin, onBackToScanner }: ModernLoginProps) {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedTier, setSelectedTier] = useState<UserTier>('free');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -53,8 +52,7 @@ export function ModernLogin({ onLogin, onBackToScanner }: ModernLoginProps) {
         data = await apiClient.register({
           name: name.trim(),
           email: email.toLowerCase().trim(),
-          password,
-          tier: selectedTier
+          password
         });
       }
 
@@ -103,33 +101,6 @@ export function ModernLogin({ onLogin, onBackToScanner }: ModernLoginProps) {
     'Priority access to upgrades, chat, and APIs as your needs grow'
   ];
   const cardWidthClass = isLogin ? 'max-w-md' : 'max-w-[950px]';
-
-  const tiers = [
-    {
-      id: 'free' as UserTier,
-      name: 'Free',
-      icon: <Shield className="h-5 w-5" />,
-      color: 'text-ocean',
-      bgColor: 'gradient-bg-ocean',
-      features: ['Core writing and chat', 'Standard speed', 'Community support']
-    },
-    {
-      id: 'premium' as UserTier,
-      name: 'Premium',
-      icon: <Sparkles className="h-5 w-5" />,
-      color: 'text-lavender',
-      bgColor: 'gradient-bg-lavender',
-      features: ['Longer context', 'High-fidelity Khmer output', 'API access', 'Priority support']
-    },
-    {
-      id: 'business' as UserTier,
-      name: 'Business',
-      icon: <Zap className="h-5 w-5" />,
-      color: 'text-sunset',
-      bgColor: 'gradient-bg-sunset',
-      features: ['Team workspaces', 'Usage analytics', 'Advanced insights', 'Enterprise support']
-    }
-  ];
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -287,49 +258,16 @@ export function ModernLogin({ onLogin, onBackToScanner }: ModernLoginProps) {
             </div>
 
             {!isLogin && (
-              <div>
-                <label className="ios-caption text-muted-foreground mb-6 font-semibold flex items-center gap-2">
-                  <Globe className="h-4 w-4" />
-                  Choose Your Plan
+              <div className="space-y-2">
+                <label className="ios-caption text-muted-foreground mb-1 font-semibold">
+                  Account Level
                 </label>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {tiers.map((tier) => (
-                    <button
-                      key={tier.id}
-                      type="button"
-                      onClick={() => setSelectedTier(tier.id)}
-                      data-selected={selectedTier === tier.id}
-                      className={`w-full min-h-[160px] p-6 glass-card selectable-card transition-all duration-300 text-left water-ripple ${
-                        selectedTier === tier.id
-                          ? 'bg-primary/10 border-primary/30 transform scale-105 shadow-2xl'
-                          : 'hover:bg-card hover:border-border hover:scale-102'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className={`p-3 rounded-2xl ${tier.bgColor} shadow-lg`}>
-                            <div className="text-white">
-                              {tier.icon}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="font-bold text-foreground text-lg">
-                              {tier.name}
-                            </div>
-                            <div className="text-sm text-muted-foreground mt-1">
-                              {tier.features[0]}
-                            </div>
-                          </div>
-                        </div>
-                        {selectedTier === tier.id && (
-                          <div className="p-2 bg-success/15 rounded-full">
-                            <CheckCircle className="h-6 w-6 text-success" />
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
+                <p className="text-sm text-muted-foreground">
+                  New accounts always start on the Free plan. After you log in, use the dashboard’s upgrade flow to purchase Premium or Business access.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  The plan tiles were removed so you can sign up quickly; the full upgrade experience lives inside the authenticated dashboard.
+                </p>
               </div>
             )}
 

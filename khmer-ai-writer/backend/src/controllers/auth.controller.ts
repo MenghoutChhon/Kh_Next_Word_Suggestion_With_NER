@@ -9,7 +9,8 @@ import { usageService } from '../services/usage/usage.service';
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password, name, tier = 'free' } = req.body;
+    const { email, password, name } = req.body;
+    const tier = 'free';
     
     if (!email || !password || !name) {
       return res.status(400).json({ error: 'All fields required' });
@@ -66,7 +67,7 @@ export const register = async (req: Request, res: Response) => {
         createdAt: user.created_at
       }, 
       token, 
-      message: 'Registration successful' 
+      message: 'Registration successful. All new accounts start on the Free plan; upgrade once you log in.'
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Registration failed';
