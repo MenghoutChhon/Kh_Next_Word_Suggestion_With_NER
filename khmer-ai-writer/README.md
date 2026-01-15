@@ -1,280 +1,269 @@
-# PM - Malware Detection Platform
+# Khmer AI Writer - Application Documentation
 
-A comprehensive malware detection platform with ML-powered scanning, team management, and tiered subscriptions.
+This document describes the full Khmer AI Writer system: architecture, services, data flow, configuration, and how the parts fit together.
 
-## Features
+## 1) What this system is
 
-- 🔐 **Authentication**: Secure signup/login with OTP email verification
-- 🛡️ **ML Scanning**: File, URL, and image malware detection
-- 👥 **Team Management**: Invite team members, assign roles
-- 💳 **Subscriptions**: Free, Premium, Business tiers with usage tracking
-- 🔑 **API Keys**: Generate and manage API keys for integrations
-- 📊 **Real-time Metrics**: Track scans, storage, API calls, threats
+Khmer AI Writer is a multi-service application that provides Khmer next-word suggestions (GRU language model) and Khmer named entity recognition (NER). It also includes a full user platform: authentication, API keys, usage tracking, teams, billing, reports, and dashboards. The UI is a Next.js web app that talks to a Node/Express backend, which proxies to two FastAPI ML services.
 
-## Quick Start
+## 2) Top-level repository layout
 
-### Prerequisites
-- Node.js 18+ and npm
-- PostgreSQL database
-- SendGrid account (for email OTP - optional for development)
+```
+Khmer_Nextword_Prediction/
+  Dataset/                       # Raw text corpora and trained artifacts
+  khmer_nextword_GRU.ipynb        # GRU LM training notebook
+  NER.ipynb                       # NER training notebook
+  khmer-ai-writer/                # Full application (frontend + backend + ML)
+```
 
-### Backend Setup
+Key application folders:
 
-1. **Navigate to backend**:
-   ```bash
-   cd backend
-   ```
+```
+khmer-ai-writer/
+  backend/                        # Express API
+  frontend/                       # Next.js UI
+  ml-khmer-lm/                    # FastAPI GRU LM service
+  ml-khmer-ner/                   # FastAPI NER service
+  docker-compose.yml              # Full local stack
+  SYSTEM_ARCHITECTURE.md          # Architecture overview
+```
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+## 3) Architecture overview
 
-3. **Configure environment** (see `.env.example`):
-   ```bash
-   cp .env.example .env
-   # Edit .env with your database credentials and API keys
-   ```
+Services and responsibilities:
 
-4. **Set up database**:
-   ```bash
-   npx prisma migrate dev --name init
-   npx prisma generate
-   ```
+- Frontend (Next.js): UI, session handling, and API calls.
+- Backend (Express): API gateway, auth, billing, usage, and proxy to ML services.
+- ML Khmer LM (FastAPI): GRU model for next-word suggestions and completion.
+- ML Khmer NER (FastAPI): Character-level NER model.
+- PostgreSQL: persistent data for users, teams, usage, reports.
+- Redis (optional): caching, queues, or rate limit support.
 
-5. **Configure email service** (optional):
-   - See [docs/EMAIL_SETUP.md](docs/EMAIL_SETUP.md) for detailed instructions
-   - Without SendGrid, OTP codes will be logged to console
+Communication flow:
 
-6. **Start server**:
-   ```bash
-   npm run dev
-   # Backend runs on http://localhost:6969
-   ```
+```
+Browser (frontend)
+  -> Backend API (http://localhost:3000/api)
+    -> ML Khmer LM (http://ml-khmer-lm:5000)
+    -> ML Khmer NER (http://ml-khmer-ner:5001)
+    -> PostgreSQL (data)
+    -> Redis (optional)
+```
 
-### Frontend Setup
+## 4) Frontend (Next.js)
 
-1. **Navigate to frontend**:
-   ```bash
-   cd frontend
-   ```
+Location: `khmer-ai-writer/frontend`
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+Entry points:
+- `frontend/app/page.tsx`: main application shell
+- `frontend/app/layout.tsx`: global layout and providers
+- `frontend/components/writer/KhmerWriter.tsx`: Khmer writer UI that calls LM and NER APIs
 
-3. **Start development server**:
-   ```bash
-   npm run dev
-   # Frontend runs on http://localhost:3000
-   ```
+Main capabilities:
+- Khmer writing UI with live suggestions (LM)
+- Khmer NER extraction
+- Authentication and profile flows
+- Dashboard, monitoring, and usage panels
+- Billing, subscriptions, and API key management
 
-4. **Access application**:
-   - Open http://localhost:3000 in your browser
-   - Sign up with email and verify OTP code
+API client:
+- `frontend/lib/api.ts` wraps backend calls (LM and NER included).
 
-## Email Service Setup
+Runtime configuration:
+- `frontend/.env.docker` and `frontend/.env.local`
+  - `NEXT_PUBLIC_API_URL` points to the backend `/api`
 
-The application requires email service for OTP verification. See [docs/EMAIL_SETUP.md](docs/EMAIL_SETUP.md) for:
+## 5) Backend (Express + TypeScript)
 
-- SendGrid account creation
-- API key generation
-- Sender email verification
-- Testing email delivery
-- Troubleshooting guide
+Location: `khmer-ai-writer/backend`
 
-**Quick Setup**:
+Core entry:
+- `backend/src/app.ts` sets up middleware, CORS, and `/api` routes
+- `backend/src/server.ts` bootstraps workers and starts the server
+
+Routing:
+- All API endpoints are mounted at `/api` (see `backend/src/routes/index.ts`)
+- Route groups:
+  - `/api/auth` for signup/login/OTP
+  - `/api/users` for profile and metrics
+  - `/api/teams` and `/api/orgs` for team management
+  - `/api/apikey` for API key management
+  - `/api/usage` for usage tracking
+  - `/api/reports` and `/api/documents` for report artifacts
+  - `/api/lm` for Khmer LM proxy (suggest)
+  - `/api/ner` for Khmer NER proxy (extract)
+  - `/api/ml` and `/api/ml-scan` for general ML and scan flows
+  - `/api/payment` and `/api/billing` for payments and billing
+  - `/api/dashboard` for dashboard metrics
+  - `/api/audit` for audit logs
+
+Controllers and services:
+- `backend/src/controllers/`: request handlers
+- `backend/src/services/`: business logic grouped by domain
+- `backend/src/middleware/`: auth, validation, error handling, rate limit
+
+Workers:
+- `backend/src/workers/scan.worker.ts`
+- `backend/src/workers/report.worker.ts`
+
+Database and schema:
+- `backend/prisma/schema.prisma` is the ORM schema
+- `backend/migrations/` holds SQL migrations
+- `backend/init.sql` seeds the initial DB
+
+## 6) ML Khmer LM service (FastAPI)
+
+Location: `khmer-ai-writer/ml-khmer-lm`
+
+Service entry:
+- `ml-khmer-lm/app/main.py`
+
+Endpoints:
+- `GET /health` -> basic service health
+- `POST /api/lm/suggest` -> top-k next token suggestions
+- `POST /api/lm/complete` -> text completion
+- `POST /api/lm/score` -> loss and perplexity for a prompt
+
+Artifacts:
+- `ml-khmer-lm/artifacts/sentencepiece.model`
+- `ml-khmer-lm/artifacts/best_gru.pt`
+- `ml-khmer-lm/artifacts/config.json`
+
+Model details:
+- GRU language model defined in `ml-khmer-lm/app/model_def.py`
+- Input normalization in `ml-khmer-lm/app/normalize.py`
+
+## 7) ML Khmer NER service (FastAPI)
+
+Location: `khmer-ai-writer/ml-khmer-ner`
+
+Service entry:
+- `ml-khmer-ner/app/main.py`
+
+Endpoints:
+- `GET /health` -> `{ ok, model_loaded }`
+- `POST /api/ner` -> `{ text, entities }`
+
+Artifacts:
+- `ml-khmer-ner/artifacts/model.pt`
+- `ml-khmer-ner/artifacts/config.json`
+- `ml-khmer-ner/artifacts/id2label.json`
+- `ml-khmer-ner/artifacts/label2id.json`
+- `ml-khmer-ner/artifacts/vocab.json`
+
+Notes:
+- Model directory can be overridden via `NER_MODEL_DIR`
+- Text is tokenized by whitespace; entities are decoded with BIO tags
+
+## 8) Data and training artifacts
+
+Datasets:
+- `Dataset/kh_oscar_Dataset.txt`
+- `Dataset/kh_CC100.txt`
+
+Training artifacts:
+- `Dataset/artifacts_final/` includes model weights and SentencePiece vocab
+- Notebooks in the repo root demonstrate training and evaluation:
+  - `khmer_nextword_GRU.ipynb`
+  - `NER.ipynb`
+
+## 9) Environment configuration
+
+Backend env:
+- `backend/.env.example` (developer template)
+- `backend/.env.docker` (docker compose)
+
+Important backend variables:
+- `DATABASE_URL`
+- `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`
+- `ML_KHMER_LM_URL`, `ML_KHMER_NER_URL`
+- `CORS_ORIGIN`, `FRONTEND_URLS`
+- `SENDGRID_API_KEY` (OTP emails)
+- `STRIPE_SECRET_KEY` (billing)
+
+Frontend env:
+- `frontend/.env.docker` uses `NEXT_PUBLIC_API_URL=http://localhost:3000/api`
+- `frontend/.env.local` can override API base for local dev
+
+ML service env:
+- `NER_MODEL_DIR` for the NER service (optional)
+
+## 10) Running locally
+
+Docker (recommended):
+
 ```bash
-# 1. Get SendGrid API key from https://app.sendgrid.com/settings/api_keys
-# 2. Add to backend/.env:
-SENDGRID_API_KEY=SG.your-api-key-here
-EMAIL_FROM=noreply@yourdomain.com
-
-# 3. Test email service:
-cd backend
-npm run test:email your-email@example.com
+cd khmer-ai-writer
+docker compose up --build
 ```
 
-## Project Structure
+Default ports from docker compose:
+- Backend: `http://localhost:3000`
+- Frontend: `http://localhost:3001`
+- LM service: `http://localhost:5000`
+- NER service: `http://localhost:5001`
+- Postgres: `localhost:5433`
+- Redis: `localhost:6380`
 
-```
-backend/
-├── src/
-│   ├── config/          # Environment & service configuration
-│   ├── controllers/     # Request handlers
-│   ├── middleware/      # Auth, validation, error handling
-│   ├── routes/          # API routes
-│   ├── services/
-│   │   ├── auth/        # Authentication, OTP, user management
-│   │   ├── core/        # Database, queue, S3, webhooks
-│   │   ├── scan/        # ML scanning, heuristics
-│   │   ├── payment/     # Billing, subscriptions
-│   │   └── ml/          # ML model integration
-│   └── tests/           # Test scripts
-├── prisma/
-│   └── schema.prisma    # Database schema
-└── .env                 # Environment variables
+Manual dev (non-docker):
 
-frontend/
-├── app/                 # Next.js app directory
-├── components/
-│   ├── auth/            # Login, AuthGuard
-│   ├── dashboard/       # Dashboard views, metrics
-│   ├── payment/         # Pricing, checkout
-│   ├── scanner/         # Threat scanner, reports
-│   └── ui/              # Shadcn UI components
-└── lib/                 # API client, utilities
-```
-
-## Environment Variables
-
-### Backend Required
-```env
-DATABASE_URL=postgresql://user:pass@localhost:5432/khmer_ai_writer
-JWT_ACCESS_SECRET=your-secret-key
-PORT=6969
-```
-
-### Backend Optional (Development)
-```env
-SENDGRID_API_KEY=SG.xxx  # OTP emails (or logged to console)
-EMAIL_FROM=noreply@yourdomain.com
-ML_FILE_MODEL_URL=http://localhost:5000/api/scan/file
-ML_URL_MODEL_URL=http://localhost:5000/api/scan/url
-ML_IMAGE_MODEL_URL=http://localhost:5000/api/scan/image
-ML_KHMER_LM_URL=http://localhost:5000
-ML_KHMER_NER_URL=http://localhost:5001
-```
-
-Note: the NER service runs separately; set `ML_KHMER_NER_URL` to wherever your Khmer NER API is hosted.
-
-See `.env.example` for complete list.
-
-## Documentation
-
-- [Email Setup Guide](docs/EMAIL_SETUP.md) - SendGrid configuration
-- [Reorganization Summary](docs/REORGANIZATION_SUMMARY.md) - File structure changes
-- [Styling Fixes](docs/STYLING_FIXES.md) - Color system updates
-- [Quick Reference](docs/QUICK_REFERENCE.md) - Import path guide
-
-## API Endpoints
-
-### Authentication
-- `POST /api/auth/signup` - Register with OTP verification
-- `POST /api/auth/verify-otp` - Verify OTP code
-- `POST /api/auth/login` - Login
-- `POST /api/auth/resend-otp` - Resend OTP
-
-### User
-- `GET /api/users/metrics` - Usage statistics
-- `GET /api/users/profile` - User profile
-- `PUT /api/users/profile` - Update profile
-
-### Scanning
-- `POST /api/ml-scan/file` - Scan file for malware
-- `POST /api/ml-scan/url` - Scan URL
-- `POST /api/ml-scan/image` - Scan image
-
-### Team
-- `POST /api/teams/invite` - Invite team member
-- `GET /api/teams/members` - List members
-- `DELETE /api/teams/members/:id` - Remove member
-
-### API Keys
-- `POST /api/apikey/create` - Generate API key
-- `GET /api/apikey/list` - List API keys
-- `DELETE /api/apikey/:id` - Revoke API key
-
-### Language Models
-- `POST /api/lm/suggest` - Top-k next word suggestions
-- `POST /api/ner/extract` - Khmer named entity extraction
-
-### Payment
-- `POST /api/payment/process` - Process subscription payment
-- `GET /api/billing/history` - Transaction history
-
-## Testing
-
-### Test Email Service
 ```bash
-cd backend
-npm run test:email your-email@example.com
+cd khmer-ai-writer/backend
+npm install
+cp .env.example .env
+npm run dev
+
+cd ../frontend
+npm install
+npm run dev
+
+cd ../ml-khmer-lm
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 5000
+
+cd ../ml-khmer-ner
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 5001
 ```
 
-### Run Backend Tests
-```bash
-cd backend
-npm test
-```
+## 11) API highlights (backend)
 
-## Development Mode
+All endpoints are under `/api`.
 
-Without SendGrid configured:
-- OTP codes are logged to backend console
-- Copy code from console output to verify signup
-- All other features work normally
+Language model:
+- `POST /api/lm/suggest` -> proxies to LM service
 
-Example console output:
-```
-[DEV] OTP for user@example.com: 123456
-[WARNING] SendGrid API key not configured. OTP email not sent.
-```
+NER:
+- `POST /api/ner/extract` -> proxies to NER service
 
-## Production Deployment
+Auth and user:
+- `POST /api/auth/signup`, `POST /api/auth/login`, `POST /api/auth/verify-otp`
+- `GET /api/users/profile`, `PUT /api/users/profile`
 
-1. **Database**: Set up PostgreSQL production instance
-2. **Email**: Configure SendGrid with verified domain
-3. **Environment**: Set production environment variables
-4. **Build**:
-   ```bash
-   cd backend && npm run build
-   cd ../frontend && npm run build
-   ```
-5. **Deploy**: Use PM2, Docker, or your preferred deployment method
+Teams and orgs:
+- `POST /api/teams/invite`, `GET /api/teams/members`
+- `GET /api/orgs`, `POST /api/orgs`
 
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed deployment guide.
+API keys and usage:
+- `POST /api/apikey/create`, `GET /api/apikey/list`
+- `GET /api/usage/summary`
 
-## Subscription Tiers
+Billing and payments:
+- `POST /api/payment/process`
+- `GET /api/billing/history`
 
-| Feature | Free | Premium | Business |
-|---------|------|---------|----------|
-| Scans/month | 50 | 1,000 | Unlimited |
-| API Calls | 0 | 2,000 | 10,000 |
-| Team Members | 1 | 5 | 20 |
-| Storage | 100 MB | 10 GB | 100 GB |
-| Support | Community | Email | Priority |
+## 12) Operational notes
 
-## Troubleshooting
+- CORS allows localhost origins by default in dev; override with `FRONTEND_URLS`.
+- Rate limiting is enabled in `backend/src/middleware/rateLimit.ts`.
+- Email OTP is optional for dev; if not configured, OTP is logged to console.
+- Some env keys still reference "malware" naming from legacy scaffold; functionality is Khmer AI Writer focused.
 
-### Backend won't start
-- Verify PostgreSQL is running
-- Check DATABASE_URL in .env
-- Run `npx prisma migrate dev`
+## 13) Where to look for specific behaviors
 
-### OTP emails not received
-- Check spam folder
-- Verify SendGrid API key
-- Ensure sender email is verified
-- See [docs/EMAIL_SETUP.md](docs/EMAIL_SETUP.md)
+- Frontend API calls: `frontend/lib/api.ts`
+- Backend proxy to LM: `backend/src/services/ml/khmerLm.service.ts`
+- Backend proxy to NER: `backend/src/services/ml/khmerNer.service.ts`
+- LM inference: `ml-khmer-lm/app/main.py`
+- NER inference: `ml-khmer-ner/app/main.py`
 
-### Import errors after reorganization
-- See [docs/QUICK_REFERENCE.md](docs/QUICK_REFERENCE.md) for new import paths
-
-## Contributing
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open Pull Request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Support
-
-- Email: support@malwaredetection.com
-- Documentation: [docs/](docs/)
-- Issues: GitHub Issues
