@@ -238,7 +238,9 @@ export function UpgradePlan({ currentTier, onUpgrade, onCheckout }: UpgradePlanP
         <div className="text-center space-y-4">
           <Button 
             onClick={handleUpgrade}
-            className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg"
+            className={`bg-primary hover:bg-primary/90 px-8 py-3 text-lg ${
+              selectedPlan === 'business' ? 'text-foreground' : 'text-white'
+            }`}
             disabled={selectedPlan === currentTier}
           >
             <DollarSign className="h-5 w-5 mr-2" />
