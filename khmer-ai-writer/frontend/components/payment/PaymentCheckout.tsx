@@ -48,7 +48,6 @@ export function PaymentCheckout({ selectedPlan, onBack, onSuccess }: PaymentChec
     ? Math.round(((selectedPlan.monthlyPrice * 12 - selectedPlan.annualPrice) / (selectedPlan.monthlyPrice * 12)) * 100) 
     : 0;
 
-  // Demo coupon codes
   const validCoupons = {
     'DEMO100': 100,  // 100% off for demo
     'WELCOME50': 50, // 50% off
@@ -420,7 +419,7 @@ export function PaymentCheckout({ selectedPlan, onBack, onSuccess }: PaymentChec
                     <div className="flex gap-2">
                       <Input
                         type="text"
-                        placeholder="Enter coupon code (try DEMO100)"
+                        placeholder="Enter your coupon code"
                         value={couponCode}
                         onChange={(e) => setCouponCode(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleApplyCoupon()}
@@ -437,27 +436,6 @@ export function PaymentCheckout({ selectedPlan, onBack, onSuccess }: PaymentChec
                     {couponError && (
                       <p className="text-sm text-error">{couponError}</p>
                     )}
-                    <div className="flex flex-wrap gap-2">
-                      <span className="text-xs text-muted-foreground">Try:</span>
-                      <button
-                        onClick={() => { setCouponCode('DEMO100'); }}
-                        className="text-xs px-2 py-1 bg-success/15 text-success rounded hover:bg-success/20 transition-colors"
-                      >
-                        DEMO100 (100% OFF!)
-                      </button>
-                      <button
-                        onClick={() => { setCouponCode('WELCOME50'); }}
-                        className="text-xs px-2 py-1 bg-primary/15 text-primary rounded hover:bg-primary/20 transition-colors"
-                      >
-                        WELCOME50 (50% OFF)
-                      </button>
-                      <button
-                        onClick={() => { setCouponCode('SAVE20'); }}
-                        className="text-xs px-2 py-1 bg-primary/15 text-foreground rounded hover:bg-primary/20 transition-colors"
-                      >
-                        SAVE20 (20% OFF)
-                      </button>
-                    </div>
                   </div>
                 )}
               </div>
