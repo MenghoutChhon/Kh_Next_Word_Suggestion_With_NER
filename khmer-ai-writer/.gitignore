@@ -2,9 +2,9 @@
 Thumbs.db
 
 # Environment files
-*.env
-*.env.*
-!.env.example
+**/.env
+**/.env.*
+!**/.env.example
 
 # Node / build outputs
 node_modules/
@@ -39,4 +39,3 @@ __pycache__/
 .coverage
 .cache
 .husky/_/
-
