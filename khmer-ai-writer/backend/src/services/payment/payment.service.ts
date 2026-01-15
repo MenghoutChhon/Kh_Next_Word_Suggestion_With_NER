@@ -71,11 +71,8 @@ class PaymentService {
    */
   async processPayment(request: PaymentRequest): Promise<PaymentResult> {
     try {
-      console.log('PaymentService.processPayment called with:', JSON.stringify(request, null, 2));
-      
       // Validate payment request
       const validation = this.validatePaymentRequest(request);
-      console.log('Validation result:', validation);
       
       if (!validation.valid) {
         return {
@@ -394,7 +391,6 @@ class PaymentService {
       [tier, limits.apiCalls, limits.storage, userId]
     );
 
-    console.log(`User ${userId} upgraded to ${tier} with limits:`, limits);
   }
 
   /**
@@ -437,7 +433,6 @@ class PaymentService {
     try {
       // Skip audit logging if table doesn't exist
       // In production, you'd create an audit_log table
-      console.log('Audit:', { userId, action, details });
     } catch (error) {
       // Silently fail if audit table doesn't exist
       console.warn('Audit logging skipped:', error);
@@ -448,48 +443,33 @@ class PaymentService {
    * Validate payment request
    */
   private validatePaymentRequest(request: PaymentRequest): { valid: boolean; message?: string } {
-    console.log('Validating payment request:', { 
-      userId: request.userId, 
-      tier: request.tier, 
-      amount: request.amount, 
-      paymentMethod: request.paymentMethod,
-      couponCode: request.couponCode,
-      discount: request.discount
-    });
-    
     if (!request.userId) {
-      console.log('Validation failed: No userId');
       return { valid: false, message: 'User ID is required' };
     }
 
     if (!request.tier || !['premium', 'business'].includes(request.tier)) {
-      console.log('Validation failed: Invalid tier:', request.tier);
       return { valid: false, message: 'Invalid tier' };
     }
 
     // Accept all payment methods including KHQR and COUPON
     const validPaymentMethods = ['visa', 'bank_transfer', 'khqr', 'KHQR', 'card', 'COUPON', 'coupon', 'demo'];
     if (!request.paymentMethod || !validPaymentMethods.includes(request.paymentMethod)) {
-      console.log('Validation failed: Invalid payment method:', request.paymentMethod);
       return { valid: false, message: 'Invalid payment method' };
     }
 
     // Skip amount validation if 100% discount coupon is applied or COUPON payment method
     const is100PercentDiscount = request.discount === 100 || request.paymentMethod === 'COUPON' || request.paymentMethod === 'coupon' || request.paymentMethod === 'demo';
     if (!is100PercentDiscount && !request.couponCode && request.amount !== TIER_PRICES[request.tier]) {
-      console.log('Validation failed: Invalid amount. Expected:', TIER_PRICES[request.tier], 'Got:', request.amount);
       return { valid: false, message: 'Invalid amount for selected tier' };
     }
 
     // Only validate card details for visa/card payments (not for COUPON or KHQR)
     if (request.paymentMethod === 'visa' || request.paymentMethod === 'card') {
       if (!request.cardNumber || !request.cvv || !request.expiryMonth || !request.expiryYear) {
-        console.log('Validation failed: Card details incomplete');
         return { valid: false, message: 'Card details are incomplete' };
       }
     }
 
-    console.log('Validation passed!');
     return { valid: true };
   }
 

@@ -369,7 +369,6 @@ class TeamManagementService {
    */
   private async sendInvitationEmail(email: string, organizationId: string): Promise<void> {
     // TODO: Integrate with email service
-    console.log(`[DEV] Invitation email sent to ${email} for organization ${organizationId}`);
   }
 
   /**

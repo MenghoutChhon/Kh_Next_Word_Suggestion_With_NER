@@ -20,10 +20,7 @@ class EmailService {
     try {
       if (!config.email?.sendgridApiKey) {
         console.warn('[WARNING] SendGrid API key not configured. Email not sent.');
-        console.log(`[DEV] Email to ${options.to}:`);
-        console.log(`Subject: ${options.subject}`);
-        console.log(`Content:\n${options.text}\n`);
-        return true; // Return true in dev mode
+      return true; // Return true in dev mode
       }
 
       const msg: any = {
@@ -43,7 +40,6 @@ class EmailService {
       }
 
       await sgMail.send(msg);
-      console.log(`[SUCCESS] Email sent to ${options.to}: ${options.subject}`);
       return true;
     } catch (error: any) {
       console.error('[ERROR] Failed to send email:', error.response?.body || error);
