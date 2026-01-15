@@ -42,7 +42,7 @@ export const config = {
 	email: {
 		sendgridApiKey: process.env.SENDGRID_API_KEY || '',
 		fromEmail: process.env.EMAIL_FROM || 'noreply@malwaredetection.com',
-		fromName: process.env.EMAIL_FROM_NAME || 'Malware Detection AI',
+		fromName: process.env.EMAIL_FROM_NAME || 'Khmer ML',
 		replyTo: process.env.EMAIL_REPLY_TO || '',
 	},
 

@@ -30,7 +30,7 @@ class EmailService {
         to: options.to,
         from: {
           email: config.email.fromEmail || 'noreply@malwaredetection.com',
-          name: config.email.fromName || 'Malware Detection AI'
+          name: config.email.fromName || 'Khmer ML'
         },
         subject: options.subject,
         text: options.text,
@@ -70,7 +70,7 @@ class EmailService {
     const text = `
 Hello,
 
-You have been invited to join the team "${teamName}" on Malware Detection AI.
+You have been invited to join the team "${teamName}" on Khmer ML.
 
 Invited by: ${inviterName}
 Your role: ${role.charAt(0).toUpperCase() + role.slice(1)}
@@ -83,7 +83,7 @@ This invitation will expire in 7 days.
 If you didn't expect this invitation, you can safely ignore this email.
 
 Best regards,
-Malware Detection AI Team
+Khmer ML Team
     `;
 
     const html = `
@@ -108,7 +108,7 @@ Malware Detection AI Team
     <div class="content">
       <p>Hello,</p>
       
-      <p>You have been invited to join the team <strong>"${teamName}"</strong> on Malware Detection AI.</p>
+      <p>You have been invited to join the team <strong>"${teamName}"</strong> on Khmer ML.</p>
       
       <div class="info-box">
         <p><strong>Invited by:</strong> ${inviterName}</p>
@@ -128,7 +128,7 @@ Malware Detection AI Team
       </p>
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} Malware Detection AI. All rights reserved.</p>
+      <p>© ${new Date().getFullYear()} Khmer ML. All rights reserved.</p>
     </div>
   </div>
 </body>
@@ -151,7 +151,7 @@ Malware Detection AI Team
     const text = `
 Hello ${userName},
 
-You requested to reset your password for Malware Detection AI.
+You requested to reset your password for Khmer ML.
 
 Click the link below to reset your password:
 ${resetUrl}
@@ -163,7 +163,7 @@ If you did not request a password reset, please ignore this email and your passw
 For security reasons, never share this link with anyone.
 
 Best regards,
-Malware Detection AI Team
+Khmer ML Team
     `;
 
     const html = `
@@ -188,7 +188,7 @@ Malware Detection AI Team
     <div class="content">
       <p>Hello ${userName},</p>
       
-      <p>You requested to reset your password for Malware Detection AI.</p>
+      <p>You requested to reset your password for Khmer ML.</p>
       
       <p>Click the button below to reset your password:</p>
       
@@ -206,7 +206,7 @@ Malware Detection AI Team
       <p style="color: #dc3545; font-weight: bold;">⚠️ For security reasons, never share this link with anyone.</p>
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} Malware Detection AI. All rights reserved.</p>
+      <p>© ${new Date().getFullYear()} Khmer ML. All rights reserved.</p>
     </div>
   </div>
 </body>
@@ -215,7 +215,7 @@ Malware Detection AI Team
 
     return this.sendEmail({ 
       to: email, 
-      subject: 'Reset Your Password - Malware Detection AI', 
+      subject: 'Reset Your Password - Khmer ML', 
       text, 
       html 
     });
@@ -235,7 +235,7 @@ If you did not make this change, please contact our support team immediately and
 Time of change: ${new Date().toLocaleString()}
 
 Best regards,
-Malware Detection AI Team
+Khmer ML Team
     `;
 
     const html = `
@@ -278,7 +278,7 @@ Malware Detection AI Team
       </ul>
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} Malware Detection AI. All rights reserved.</p>
+      <p>© ${new Date().getFullYear()} Khmer ML. All rights reserved.</p>
     </div>
   </div>
 </body>
@@ -295,7 +295,7 @@ Malware Detection AI Team
     const text = `
 Hello ${userName},
 
-Your account has been successfully deleted from Malware Detection AI.
+Your account has been successfully deleted from Khmer ML.
 
 All your data has been permanently removed from our systems:
 - User profile and settings
@@ -311,7 +311,7 @@ We're sorry to see you go. If you have any feedback about why you left, we'd lov
 Time of deletion: ${new Date().toLocaleString()}
 
 Best regards,
-Malware Detection AI Team
+Khmer ML Team
     `;
 
     const html = `
@@ -335,7 +335,7 @@ Malware Detection AI Team
     <div class="content">
       <p>Hello ${userName},</p>
       
-      <p>Your account has been successfully deleted from Malware Detection AI.</p>
+      <p>Your account has been successfully deleted from Khmer ML.</p>
       
       <div class="info-box">
         <p><strong>Data Removed:</strong></p>
@@ -356,7 +356,7 @@ Malware Detection AI Team
       <p>If you have any feedback about why you left, we'd love to hear from you. Your input helps us improve our service.</p>
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} Malware Detection AI. All rights reserved.</p>
+      <p>© ${new Date().getFullYear()} Khmer ML. All rights reserved.</p>
     </div>
   </div>
 </body>
@@ -371,11 +371,11 @@ Malware Detection AI Team
    */
   async sendWelcomeEmail(email: string, userName: string): Promise<boolean> {
     const text = `
-Welcome to Malware Detection AI, ${userName}!
+Welcome to Khmer ML, ${userName}!
 
 Thank you for joining us. We're excited to have you on board!
 
-With Malware Detection AI, you can:
+With Khmer ML, you can:
 - Scan files and URLs for threats
 - Get detailed threat analysis reports
 - Access real-time monitoring
@@ -389,7 +389,7 @@ Getting Started:
 Need help? Check out our documentation or contact support.
 
 Best regards,
-Malware Detection AI Team
+Khmer ML Team
     `;
 
     const html = `
@@ -408,7 +408,7 @@ Malware Detection AI Team
 <body>
   <div class="container">
     <div class="header">
-      <h1>🎉 Welcome to Malware Detection AI!</h1>
+      <h1>🎉 Welcome to Khmer ML!</h1>
     </div>
     <div class="content">
       <p>Hello ${userName},</p>
@@ -439,14 +439,14 @@ Malware Detection AI Team
       <p>Need help? We're here for you! Check out our documentation or contact support.</p>
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} Malware Detection AI. All rights reserved.</p>
+      <p>© ${new Date().getFullYear()} Khmer ML. All rights reserved.</p>
     </div>
   </div>
 </body>
 </html>
     `;
 
-    return this.sendEmail({ to: email, subject: 'Welcome to Malware Detection AI! 🎉', text, html });
+    return this.sendEmail({ to: email, subject: 'Welcome to Khmer ML! 🎉', text, html });
   }
 
   /**
@@ -461,7 +461,7 @@ Malware Detection AI Team
     const text = `
 Hello ${userName},
 
-You have been removed from the team "${teamName}" on Malware Detection AI.
+You have been removed from the team "${teamName}" on Khmer ML.
 
 Removed by: ${removedBy}
 Time: ${new Date().toLocaleString()}
@@ -471,7 +471,7 @@ You will no longer have access to this team's resources and data.
 If you believe this was done in error, please contact the team owner.
 
 Best regards,
-Malware Detection AI Team
+Khmer ML Team
     `;
 
     const html = `
@@ -495,7 +495,7 @@ Malware Detection AI Team
     <div class="content">
       <p>Hello ${userName},</p>
       
-      <p>You have been removed from the team <strong>"${teamName}"</strong> on Malware Detection AI.</p>
+      <p>You have been removed from the team <strong>"${teamName}"</strong> on Khmer ML.</p>
       
       <div class="info-box">
         <p><strong>Removed by:</strong> ${removedBy}</p>
@@ -507,7 +507,7 @@ Malware Detection AI Team
       <p>If you believe this was done in error, please contact the team owner.</p>
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} Malware Detection AI. All rights reserved.</p>
+      <p>© ${new Date().getFullYear()} Khmer ML. All rights reserved.</p>
     </div>
   </div>
 </body>
@@ -541,7 +541,7 @@ Time: ${new Date().toLocaleString()}
 Your permissions have been updated according to your new role.
 
 Best regards,
-Malware Detection AI Team
+Khmer ML Team
     `;
 
     const html = `
@@ -577,7 +577,7 @@ Malware Detection AI Team
       <p>Your permissions have been updated according to your new role.</p>
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} Malware Detection AI. All rights reserved.</p>
+      <p>© ${new Date().getFullYear()} Khmer ML. All rights reserved.</p>
     </div>
   </div>
 </body>
@@ -619,7 +619,7 @@ You can download your invoice from your account dashboard.
 If you have any questions, please don't hesitate to contact our support team.
 
 Best regards,
-Malware Detection AI Team
+Khmer ML Team
     `;
 
     const html = `
@@ -684,7 +684,7 @@ Malware Detection AI Team
       <p>If you have any questions or concerns, please don't hesitate to contact our support team at <a href="mailto:support@malwaredetection.com">support@malwaredetection.com</a>.</p>
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} Malware Detection AI. All rights reserved.</p>
+      <p>© ${new Date().getFullYear()} Khmer ML. All rights reserved.</p>
       <p>This is an automated receipt for your payment.</p>
     </div>
   </div>

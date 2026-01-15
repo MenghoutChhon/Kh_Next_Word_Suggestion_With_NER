@@ -21,6 +21,14 @@ import nerRoutes from './ner.routes';
 
 const router = Router();
 
+router.get('/', (_req, res) => {
+  res.json({
+    status: 'Khmer AI Writer API',
+    version: '1.0.0',
+    ready: true
+  });
+});
+
 router.use('/auth', authRoutes);
 router.use('/orgs', organizationRoutes);
 router.use('/teams', teamRoutes);

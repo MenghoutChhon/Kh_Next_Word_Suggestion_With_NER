@@ -120,7 +120,7 @@ class OTPService {
       const msg = {
         to: email,
         from: config.email.fromEmail || 'noreply@malwaredetection.com',
-        subject: 'Your Malware Detection AI Verification Code',
+        subject: 'Your Khmer ML Verification Code',
         text: this.getOtpEmailText(otpCode),
         html: this.getOtpEmailHtml(otpCode),
       };
@@ -136,7 +136,7 @@ class OTPService {
 
   private getOtpEmailText(otpCode: string): string {
     return `
-Your Malware Detection AI Verification Code
+Your Khmer ML Verification Code
 
 Hello,
 
@@ -147,7 +147,7 @@ This code will expire in 10 minutes.
 If you didn't request this code, please ignore this email.
 
 Best regards,
-Malware Detection AI Team
+Khmer ML Team
     `;
   }
 
@@ -168,7 +168,7 @@ Malware Detection AI Team
 <body>
   <div class="container">
     <div class="header">
-      <h1>🛡️ Malware Detection AI</h1>
+      <h1>🛡️ Khmer ML</h1>
     </div>
     <div class="content">
       <h2>Email Verification</h2>
@@ -178,7 +178,7 @@ Malware Detection AI Team
       <p><strong>This code will expire in 10 minutes.</strong></p>
       <p>If you didn't request this code, please ignore this email.</p>
       <div class="footer">
-        <p>Best regards,<br>Malware Detection AI Team</p>
+        <p>Best regards,<br>Khmer ML Team</p>
       </div>
     </div>
   </div>
