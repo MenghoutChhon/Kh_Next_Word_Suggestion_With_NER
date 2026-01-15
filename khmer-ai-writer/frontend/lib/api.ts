@@ -361,17 +361,6 @@ export class ApiClient {
     return response.data;
   }
 
-  // ML Adapter Methods
-  async listModels() {
-    const response = await this.client.get('/ml/models');
-    return response.data;
-  }
-
-  async predict(modelName: string, input: any) {
-    const response = await this.client.post('/ml/predict', { modelName, input });
-    return response.data;
-  }
-
   // Khmer LM Methods
   async lmSuggest(text: string, topk = 5, temperature = 1.0) {
     const response = await this.client.post('/lm/suggest', { text, topk, temperature });

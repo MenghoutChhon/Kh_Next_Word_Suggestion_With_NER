@@ -754,9 +754,13 @@ export function Settings({ user, onUpdateProfile, onUpgrade }: SettingsProps) {
                             Showing {billingStart + 1}-{Math.min(billingStart + billingPageSize, billingHistory.length)} of {billingHistory.length}
                           </div>
                           <div className="flex flex-wrap items-center gap-2">
+                            <div className="sr-only">
+                              <label htmlFor="billing-page-size">Billing rows per page</label>
+                            </div>
                             <select
                               value={billingPageSize}
                               onChange={(e) => setBillingPageSize(Number(e.target.value))}
+                              id="billing-page-size"
                               className="rounded-lg bg-card border border-border px-3 py-1 text-xs text-foreground"
                             >
                               {[5, 10, 20].map((size) => (

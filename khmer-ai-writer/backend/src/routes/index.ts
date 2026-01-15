@@ -15,7 +15,6 @@ import mfaRoutes from './mfa.routes';
 import sessionRoutes from './session.routes';
 import documentRoutes from './document.routes';
 import auditRoutes from './audit.routes';
-import mlRoutes from './ml.routes';
 import lmRoutes from './lm.routes';
 import nerRoutes from './ner.routes';
 
@@ -48,7 +47,6 @@ router.use('/mfa', mfaRoutes);
 router.use('/sessions', sessionRoutes);
 router.use('/documents', documentRoutes);
 router.use('/audit', auditRoutes);
-router.use('/ml', mlRoutes);
 router.use('/lm', lmRoutes);
 router.use('/ner', nerRoutes);
 

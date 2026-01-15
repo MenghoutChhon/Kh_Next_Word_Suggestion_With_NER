@@ -224,6 +224,11 @@ export function TeamSettings({ teamId, currentTeamData, onUpdate, onDelete }: Te
                 onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
                 className="h-10 w-20 rounded cursor-pointer"
               />
+              <div className="sr-only">
+                <Label htmlFor="team-primary-color" className="mb-0">
+                  Primary color hex
+                </Label>
+              </div>
               <Input
                 id="team-primary-color"
                 value={settings.primaryColor}
