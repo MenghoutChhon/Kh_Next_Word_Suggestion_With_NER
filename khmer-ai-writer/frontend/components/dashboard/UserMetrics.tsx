@@ -24,6 +24,26 @@ export function UserMetrics({ userTier, onUpgrade }: UserMetricsProps) {
   const [metrics, setMetrics] = useState<UsageMetrics | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const tierDefaults: Record<UserTier, { generations: number; apiCalls: number }> = {
+    free: { generations: 100, apiCalls: 100 },
+    premium: { generations: 10000, apiCalls: -1 },
+    business: { generations: -1, apiCalls: -1 },
+  };
+
+  const tierCopy: Record<UserTier, string> = {
+    free: 'Free tier: up to 100 generations and 100 API calls per billing cycle.',
+    premium: 'Premium tier: up to 10,000 generations and unlimited API calls.',
+    business: 'Business tier: unlimited generations and API calls.',
+  };
+
+  const formatLimitLabel = (limit: number, fallback: number) => {
+    const normalized = limit > 0 ? limit : fallback;
+    if (normalized === -1) {
+      return 'Unlimited';
+    }
+    return normalized.toLocaleString();
+  };
+
   useEffect(() => {
     let isMounted = true;
     const loadMetrics = async (showLoading = false) => {
@@ -113,7 +133,7 @@ export function UserMetrics({ userTier, onUpgrade }: UserMetricsProps) {
             Generations
           </div>
           <div className="usage-card-value text-2xl font-bold">
-            {metrics.generationsUsed} / {metrics.generationsLimit === -1 ? 'Unlimited' : metrics.generationsLimit}
+            {metrics.generationsUsed} / {formatLimitLabel(metrics.generationsLimit, tierDefaults[userTier].generations)}
           </div>
         </div>
         <div className="usage-card p-6 rounded-2xl">
@@ -122,7 +142,7 @@ export function UserMetrics({ userTier, onUpgrade }: UserMetricsProps) {
             API Calls
           </div>
           <div className="usage-card-value text-2xl font-bold">
-            {metrics.apiCallsUsed} / {metrics.apiCallsLimit === -1 ? 'Unlimited' : metrics.apiCallsLimit}
+            {metrics.apiCallsUsed} / {formatLimitLabel(metrics.apiCallsLimit, tierDefaults[userTier].apiCalls)}
           </div>
         </div>
         <div className="usage-card p-6 rounded-2xl">
@@ -132,6 +152,12 @@ export function UserMetrics({ userTier, onUpgrade }: UserMetricsProps) {
           </div>
           <div className="usage-card-value text-2xl font-bold">{metrics.teamMembers}</div>
         </div>
+      </div>
+
+      <div className="text-xs text-muted-foreground mt-3 leading-relaxed">
+        {tierCopy[userTier]}
+        <br />
+        Upgrades refresh each billing cycle with the limits shown above.
       </div>
 
       {userTier === 'free' && (

@@ -97,6 +97,13 @@ export function ModernLogin({ onLogin, onBackToScanner }: ModernLoginProps) {
     }
   };
 
+  const signUpHighlights = [
+    'Instant Khmer writing suggestions so every sentence feels polished',
+    'Secure workspaces with optional premium insights',
+    'Priority access to upgrades, chat, and APIs as your needs grow'
+  ];
+  const cardWidthClass = isLogin ? 'max-w-md' : 'max-w-[950px]';
+
   const tiers = [
     {
       id: 'free' as UserTier,
@@ -112,7 +119,7 @@ export function ModernLogin({ onLogin, onBackToScanner }: ModernLoginProps) {
       icon: <Sparkles className="h-5 w-5" />,
       color: 'text-lavender',
       bgColor: 'gradient-bg-lavender',
-      features: ['Longer context', 'Higher quality output', 'API access', 'Priority support']
+      features: ['Longer context', 'High-fidelity Khmer output', 'API access', 'Priority support']
     },
     {
       id: 'business' as UserTier,
@@ -136,7 +143,7 @@ export function ModernLogin({ onLogin, onBackToScanner }: ModernLoginProps) {
       </div>
       
       <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 relative z-10">
-        <div className="w-full max-w-md glass-card p-8 sm:p-10 water-ripple">
+        <div className={`w-full ${cardWidthClass} glass-card p-8 sm:p-10 water-ripple`}>
           <div className="text-center mb-8 sm:mb-10">
               <div className="flex justify-center mb-8">
               <div className="relative">
@@ -184,6 +191,21 @@ export function ModernLogin({ onLogin, onBackToScanner }: ModernLoginProps) {
             <p className="ios-body text-muted-foreground leading-relaxed">
               {isLogin ? 'Sign in to your secure account' : 'Create your digital workspace'}
             </p>
+            {!isLogin && (
+              <div className="text-left text-sm text-muted-foreground mt-5 space-y-2">
+                <div className="text-xs uppercase tracking-[0.3em] text-primary font-semibold">
+                  Why join Khmer AI Writer?
+                </div>
+                <ul className="space-y-1">
+                  {signUpHighlights.map((item) => (
+                    <li key={item} className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-primary"></span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {error && (
@@ -270,14 +292,14 @@ export function ModernLogin({ onLogin, onBackToScanner }: ModernLoginProps) {
                   <Globe className="h-4 w-4" />
                   Choose Your Plan
                 </label>
-                <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {tiers.map((tier) => (
                     <button
                       key={tier.id}
                       type="button"
                       onClick={() => setSelectedTier(tier.id)}
                       data-selected={selectedTier === tier.id}
-                      className={`w-full p-6 glass-card selectable-card transition-all duration-300 text-left water-ripple ${
+                      className={`w-full min-h-[160px] p-6 glass-card selectable-card transition-all duration-300 text-left water-ripple ${
                         selectedTier === tier.id
                           ? 'bg-primary/10 border-primary/30 transform scale-105 shadow-2xl'
                           : 'hover:bg-card hover:border-border hover:scale-102'

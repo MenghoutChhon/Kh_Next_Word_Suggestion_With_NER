@@ -286,23 +286,30 @@ export function MainApplication() {
                 const Icon = item.icon;
                 const isActive = currentView === item.id;
                 
-                const button = (
-                  <button
-                    onClick={() => handleViewChange(item.id)}
-                    className={`sidebar-item w-full text-left group ${isActive ? 'active' : ''}`}
-                  >
-                    <Icon className="icon-md shrink-0" />
-                    <span className="sidebar-label">{item.label}</span>
-                  </button>
-                );
-
                 if (!sidebarCollapsed) {
-                  return button;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleViewChange(item.id)}
+                      className={`sidebar-item w-full text-left group ${isActive ? 'active' : ''}`}
+                    >
+                      <Icon className="icon-md shrink-0" />
+                      <span className="sidebar-label">{item.label}</span>
+                    </button>
+                  );
                 }
 
                 return (
                   <Tooltip key={item.id}>
-                    <TooltipTrigger asChild>{button}</TooltipTrigger>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleViewChange(item.id)}
+                        className={`sidebar-item w-full text-left group ${isActive ? 'active' : ''}`}
+                      >
+                        <Icon className="icon-md shrink-0" />
+                        <span className="sidebar-label">{item.label}</span>
+                      </button>
+                    </TooltipTrigger>
                     <TooltipContent side="right" sideOffset={12}>
                       {item.label}
                     </TooltipContent>
