@@ -111,6 +111,13 @@ Database and schema:
 - `backend/migrations/` holds SQL migrations
 - `backend/init.sql` seeds the initial DB
 
+### 5a) Database relation flow
+
+- Users (`backend/prisma/schema.prisma`) own organizations (`Organization`), manage billing (`Billing`, `Subscription`, `PaymentHistory`), and issue API access (`ApiKey`). Memberships (`TeamMember`) link users to organizations and consolidate permissions, while documents, OTP verifications, and audit logs all trace identity back to the same `users.id`.
+- Language/scan data flows through `Scan`, which references `User`, and cascades to `ScanResult` (per-engine detections) plus an optional `Report`. That ensures each inspection can be retraced from the proprietary ML services through the backend to the requesting user.
+- Team-based usage lives in `team_member_usage` and `team_usage` tables added in `backend/init.sql`. They are populated/updated via the `track_team_member_usage` function so that scan, API call, report, and storage counts stay aligned with `TeamMember`/`Team` records.
+- Usage tracking on the user side happens via `track_user_usage` (and `reset_monthly_usage`), which writes into `user_usage_history` while updating counters (`scans_used`, `api_calls_used`, `reports_generated`, `storage_used`) on `users`. This keeps frontend usage dashboards consistent with the relational model.
+- Seed/demo users for `free`, `premium`, and `business` tiers are inserted in `backend/init.sql`, providing ready-made rows that tie to the same schema relations used in production.
 ## 6) ML Khmer LM service (FastAPI)
 
 Location: `khmer-ai-writer/ml-khmer-lm`
