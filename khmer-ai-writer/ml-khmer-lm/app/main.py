@@ -1,4 +1,6 @@
 import json
+from pathlib import Path
+
 import torch
 import sentencepiece as spm
 from fastapi import FastAPI
@@ -10,6 +12,25 @@ from .normalize import normalize_khmer
 app = FastAPI(title="Khmer GRU LM API")
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+CHECKPOINT_PATH = Path("artifacts/best_gru.pt")
+LFS_POINTER_PREFIX = b"version https://git-lfs.github.com/spec/v1"
+
+def ensure_checkpoint_file(path: Path):
+    """Ensure the checkpoint is the real artifact (not a Git LFS pointer)."""
+    try:
+        with path.open("rb") as fp:
+            header = fp.read(len(LFS_POINTER_PREFIX))
+    except FileNotFoundError as exc:
+        raise RuntimeError(
+            f"Checkpoint file {path} is missing; download it before starting the ML service."
+        ) from exc
+
+    if header == LFS_POINTER_PREFIX:
+        raise RuntimeError(
+            f"{path} contains a Git LFS pointer instead of the real checkpoint. "
+            "Install Git LFS and run `git lfs pull`, or copy the full artifact into "
+            "ml-khmer-lm/artifacts before starting the service."
+        )
 
 # Load config
 with open("artifacts/config.json", "r", encoding="utf-8") as f:
@@ -18,6 +39,8 @@ with open("artifacts/config.json", "r", encoding="utf-8") as f:
 # Load SentencePiece
 sp = spm.SentencePieceProcessor()
 sp.load("artifacts/sentencepiece.model")
+
+ensure_checkpoint_file(CHECKPOINT_PATH)
 
 # Load model
 model = GRULanguageModel(
@@ -29,7 +52,7 @@ model = GRULanguageModel(
     pad_id=cfg["pad_id"],
 ).to(DEVICE)
 
-ckpt = torch.load("artifacts/best_gru.pt", map_location=DEVICE)
+ckpt = torch.load(CHECKPOINT_PATH, map_location=DEVICE)
 state = ckpt["model"] if isinstance(ckpt, dict) and "model" in ckpt else ckpt
 if any(key.startswith("gru.") for key in state.keys()):
     state = {

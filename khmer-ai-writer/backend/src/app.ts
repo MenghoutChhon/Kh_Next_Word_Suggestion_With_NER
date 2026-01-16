@@ -15,7 +15,7 @@ const envOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
   .map(o => o.trim())
   .filter(Boolean);
 const allowedOrigins = [...devOrigins, ...envOrigins];
-const allowAllInDev = process.env.NODE_ENV !== 'production' && !process.env.FRONTEND_URLS && !process.env.FRONTEND_URL;
+const allowAllInDev = process.env.NODE_ENV !== 'production'; // ease CORS during local/dev runs, even with remote hosts
 
 app.use(cors({
   origin: (origin, callback) => {
